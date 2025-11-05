@@ -74,30 +74,53 @@ class ImmichClient:
         Returns:
             List of Asset objects
         """
-        # Use search/metadata endpoint with empty query to get all assets
-        response = self._make_request(
-            "POST",
-            "/search/metadata",
-            json={"query": ""},
-        )
+        all_assets = []
+        page = 1
+        page_size = 1000  # Maximum supported by Immich API
         
-        assets_data = response.json().get("assets", {}).get("items", [])
-        assets = [Asset(**asset_data) for asset_data in assets_data]
+        while True:
+            # Use search/metadata endpoint with pagination
+            response = self._make_request(
+                "POST",
+                "/search/metadata",
+                json={
+                    "query": "",
+                    "page": page,
+                    "size": page_size,
+                },
+            )
+            
+            data = response.json()
+            assets_data = data.get("assets", {}).get("items", [])
+            
+            if not assets_data:
+                break
+            
+            # Parse assets
+            assets = [Asset(**asset_data) for asset_data in assets_data]
+            all_assets.extend(assets)
+            
+            # Check if we got all assets or reached the limit
+            total = data.get("assets", {}).get("total", 0)
+            if len(all_assets) >= total or len(assets_data) < page_size:
+                break
+            
+            page += 1
         
         # Filter by pattern if provided
         if pattern:
             regex = re.compile(pattern)
-            assets = [
+            all_assets = [
                 asset
-                for asset in assets
+                for asset in all_assets
                 if regex.search(asset.original_file_name)
             ]
         
         # Apply limit if provided
         if limit:
-            assets = assets[:limit]
+            all_assets = all_assets[:limit]
         
-        return assets
+        return all_assets
 
     def delete_assets(self, asset_ids: list[str], force: bool = False) -> None:
         """Delete multiple assets.
