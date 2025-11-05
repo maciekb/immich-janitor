@@ -44,8 +44,8 @@ def overview(ctx):
         archived_count = sum(1 for asset in assets if asset.is_archived)
         trashed_count = sum(1 for asset in assets if asset.is_trashed)
         
-        # Date range
-        dates = [asset.created_at for asset in assets]
+        # Date range (using photo taken date from EXIF when available)
+        dates = [asset.photo_taken_at for asset in assets]
         oldest_date = min(dates) if dates else None
         newest_date = max(dates) if dates else None
         
@@ -158,11 +158,11 @@ def by_date(ctx, group_by: str):
             console.print("[yellow]No assets found.[/yellow]")
             return
         
-        # Group by date
+        # Group by date (using photo taken date from EXIF when available)
         date_groups = Counter()
         
         for asset in assets:
-            date = asset.created_at
+            date = asset.photo_taken_at
             
             if group_by == "year":
                 key = date.strftime("%Y")

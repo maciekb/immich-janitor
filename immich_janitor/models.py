@@ -41,6 +41,13 @@ class Asset(BaseModel):
             return self.exif_info.file_size_in_byte
         return None
 
+    @property
+    def photo_taken_at(self) -> datetime:
+        """Get the date when photo was taken (from EXIF) or created date as fallback."""
+        if self.exif_info and self.exif_info.date_time_original:
+            return self.exif_info.date_time_original
+        return self.created_at
+
 
 class AssetBulkDeleteRequest(BaseModel):
     """Request model for bulk delete operation."""

@@ -173,3 +173,69 @@ def test_duplicate_group():
     assert group.id == "group-123"
     assert group.asset_count == 2
     assert group.total_size == 2000000  # Sum of both assets
+
+
+def test_asset_photo_taken_at_with_exif():
+    """Test photo_taken_at property when EXIF dateTimeOriginal is available."""
+    asset_data = {
+        "id": "test-exif-date",
+        "originalFileName": "IMG_001.jpg",
+        "type": "IMAGE",
+        "createdAt": "2024-01-10T12:00:00Z",  # Upload date
+        "exifInfo": {
+            "fileSizeInByte": 5000000,
+            "dateTimeOriginal": "2024-01-05T10:30:00Z",  # Photo taken date
+        },
+        "isFavorite": False,
+        "isArchived": False,
+        "isTrashed": False,
+    }
+    
+    asset = Asset(**asset_data)
+    
+    # Should use dateTimeOriginal from EXIF, not createdAt
+    assert asset.photo_taken_at.strftime("%Y-%m-%d") == "2024-01-05"
+    assert asset.created_at.strftime("%Y-%m-%d") == "2024-01-10"
+    assert asset.photo_taken_at != asset.created_at
+
+
+def test_asset_photo_taken_at_without_exif():
+    """Test photo_taken_at property when EXIF dateTimeOriginal is not available."""
+    asset_data = {
+        "id": "test-no-exif-date",
+        "originalFileName": "IMG_002.jpg",
+        "type": "IMAGE",
+        "createdAt": "2024-01-10T12:00:00Z",
+        "isFavorite": False,
+        "isArchived": False,
+        "isTrashed": False,
+    }
+    
+    asset = Asset(**asset_data)
+    
+    # Should fallback to createdAt when no EXIF date
+    assert asset.photo_taken_at == asset.created_at
+    assert asset.photo_taken_at.strftime("%Y-%m-%d") == "2024-01-10"
+
+
+def test_asset_photo_taken_at_with_exif_but_no_date():
+    """Test photo_taken_at property when EXIF exists but dateTimeOriginal is None."""
+    asset_data = {
+        "id": "test-exif-no-date",
+        "originalFileName": "IMG_003.jpg",
+        "type": "IMAGE",
+        "createdAt": "2024-01-10T12:00:00Z",
+        "exifInfo": {
+            "fileSizeInByte": 5000000,
+            # dateTimeOriginal not provided
+        },
+        "isFavorite": False,
+        "isArchived": False,
+        "isTrashed": False,
+    }
+    
+    asset = Asset(**asset_data)
+    
+    # Should fallback to createdAt when EXIF exists but has no date
+    assert asset.photo_taken_at == asset.created_at
+    assert asset.photo_taken_at.strftime("%Y-%m-%d") == "2024-01-10"
