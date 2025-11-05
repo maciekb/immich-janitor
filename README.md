@@ -60,6 +60,8 @@ IMMICH_API_KEY=your-api-key-here
 4. Click **New API Key**
 5. Give it a name and copy the generated key
 
+> **Note**: The `.env` file is automatically loaded when you run the CLI, so you don't need to export variables manually if the file exists in your project directory.
+
 ## Usage
 
 ### List Assets
@@ -140,7 +142,7 @@ This tool uses the official Immich API. For more information about the API endpo
 
 ### Key Endpoints Used
 
-- `GET /assets` - List all assets
+- `POST /search/metadata` - Search and list all assets
 - `DELETE /assets` - Bulk delete assets
 - `GET /assets/{id}` - Get asset details
 
