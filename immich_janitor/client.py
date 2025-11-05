@@ -14,20 +14,22 @@ console = Console()
 class ImmichClient:
     """Client for interacting with Immich API."""
 
-    def __init__(self, api_url: str, api_key: str):
+    def __init__(self, api_url: str, api_key: str, timeout: float = 60.0):
         """Initialize the client.
         
         Args:
             api_url: Base URL for Immich API (e.g., http://localhost:2283/api)
             api_key: API key for authentication
+            timeout: Request timeout in seconds (default: 60)
         """
         self.api_url = api_url.rstrip("/")
         self.api_key = api_key
         self.headers = {
-            "X-Api-Key": api_key,
+            "x-api-key": api_key,  # Immich uses lowercase header name
             "Accept": "application/json",
+            "Content-Type": "application/json",
         }
-        self.client = httpx.Client(headers=self.headers, timeout=30.0)
+        self.client = httpx.Client(headers=self.headers, timeout=timeout)
 
     def _make_request(
         self,
@@ -72,11 +74,14 @@ class ImmichClient:
         Returns:
             List of Asset objects
         """
-        # Note: The actual Immich API might paginate results differently
-        # This is a simplified implementation
-        response = self._make_request("GET", "/assets")
+        # Use search/metadata endpoint with empty query to get all assets
+        response = self._make_request(
+            "POST",
+            "/search/metadata",
+            json={"query": ""},
+        )
         
-        assets_data = response.json()
+        assets_data = response.json().get("assets", {}).get("items", [])
         assets = [Asset(**asset_data) for asset_data in assets_data]
         
         # Filter by pattern if provided

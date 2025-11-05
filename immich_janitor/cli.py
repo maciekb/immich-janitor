@@ -7,6 +7,9 @@ from rich.table import Table
 from immich_janitor.client import ImmichClient
 from immich_janitor.config import load_config
 
+# Load .env file at module import
+load_config()
+
 console = Console()
 
 
