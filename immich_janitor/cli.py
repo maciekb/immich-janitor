@@ -4,6 +4,9 @@ import click
 from rich.console import Console
 from rich.table import Table
 
+from immich_janitor.cli_duplicates import duplicates
+from immich_janitor.cli_stats import stats
+from immich_janitor.cli_trash import trash
 from immich_janitor.client import ImmichClient
 from immich_janitor.config import load_config
 
@@ -31,6 +34,12 @@ def cli(ctx, api_url: str, api_key: str):
     """Immich Janitor - Manage your Immich library via API."""
     ctx.ensure_object(dict)
     ctx.obj["client"] = ImmichClient(api_url=api_url, api_key=api_key)
+
+
+# Register command groups
+cli.add_command(stats)
+cli.add_command(duplicates)
+cli.add_command(trash)
 
 
 @cli.command()
