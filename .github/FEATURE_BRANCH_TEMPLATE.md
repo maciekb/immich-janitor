@@ -258,6 +258,89 @@ gh pr checks
 gh pr merge --auto --squash
 ```
 
+## Codex Bot Review Process
+
+After creating a PR, **Codex bot** will automatically review your code:
+
+### 1. **Automatic Review**
+- Codex analyzes code quality automatically
+- Wait for Codex to complete review (usually few minutes)
+
+### 2. **If Codex Approves** 👍
+- You'll see a thumbs up (👍) from Codex
+- Code quality is good - ready to merge!
+- Proceed with merge after any human reviews
+
+### 3. **If Codex Has Concerns** 💬
+- Codex will create a comment with specific issues
+- Read the comment carefully - it contains:
+  - Code quality issues
+  - Suggestions for improvement
+  - Specific lines/files to fix
+
+### 4. **Fix Issues**
+```bash
+# Address Codex's concerns in your branch
+git checkout feature/your-feature-name
+
+# Make fixes based on Codex comments
+# ... edit files ...
+
+git add .
+git commit -m "fix: Address Codex review comments"
+git push origin feature/your-feature-name
+```
+
+### 5. **Request Re-review**
+```bash
+# Via GitHub CLI
+gh pr comment --body "@codex review"
+
+# Or via web UI:
+# 1. Go to PR
+# 2. Add new comment with: @codex review
+# 3. Submit
+```
+
+### 6. **Iterate Until Approval**
+- Codex will review again
+- Repeat steps 4-5 until Codex gives 👍
+- Then merge!
+
+### Example Workflow with Codex:
+
+```bash
+# 1. Create PR
+gh pr create --title "feat: Add album management"
+
+# 2. Wait for Codex review...
+# (Codex comments: "Consider adding error handling in line 45")
+
+# 3. Fix issues
+git checkout feature/album-management
+# ... fix issues ...
+git commit -m "fix: Add error handling as suggested by Codex"
+git push
+
+# 4. Request re-review
+gh pr comment --body "@codex review"
+
+# 5. Wait for Codex...
+# (Codex gives 👍)
+
+# 6. Merge!
+gh pr merge --squash
+```
+
+### Tips for Working with Codex:
+
+- ✅ **Read comments carefully** - Codex provides specific feedback
+- ✅ **Fix all mentioned issues** - Don't skip any concerns
+- ✅ **Use clear commit messages** - Help reviewers understand fixes
+- ✅ **Request re-review** - Always use `@codex review` after fixes
+- ✅ **Be patient** - Automated reviews may take a few minutes
+- ❌ **Don't merge without approval** - Wait for Codex 👍
+
 ## Questions?
 
 See CONTRIBUTING.md for full guidelines.

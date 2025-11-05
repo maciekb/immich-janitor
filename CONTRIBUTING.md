@@ -213,6 +213,54 @@ The `main` branch should always be:
 - ✅ Passing all tests
 - ✅ Properly documented
 - ✅ Tagged for releases
+- ✅ **Approved by Codex bot**
+
+### Codex Bot - Automated Code Review
+
+All Pull Requests are automatically reviewed by **Codex bot** to ensure code quality:
+
+#### How it works:
+
+1. **Create PR** → Codex automatically starts review
+2. **Codex analyzes** → Code quality, best practices, potential issues
+3. **Review result**:
+   - 👍 **Approved** → Code is good, ready to merge
+   - 💬 **Comments** → Issues found, need fixes
+
+#### If Codex has concerns:
+
+1. Read the comment carefully
+2. Fix the issues in your branch
+3. Push the fixes
+4. Request re-review: **Add comment with `@codex review`**
+5. Repeat until Codex approves 👍
+
+#### Example:
+
+```bash
+# After PR creation, Codex finds issues
+# You see comment: "Missing error handling in client.py:45"
+
+# Fix the issue
+git checkout feature/your-feature
+# ... fix code ...
+git commit -m "fix: Add error handling as suggested by Codex"
+git push
+
+# Request re-review
+gh pr comment --body "@codex review"
+
+# Wait for Codex approval 👍
+# Then merge!
+gh pr merge --squash
+```
+
+#### Important:
+- ⚠️ **Don't merge without Codex approval**
+- ⚠️ **Always address all concerns**
+- ⚠️ **Use `@codex review` after fixes** to trigger re-review
+
+See `.github/FEATURE_BRANCH_TEMPLATE.md` for detailed Codex workflow.
 
 ### When to Branch vs. Direct Commit
 
