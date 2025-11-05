@@ -4,11 +4,34 @@ CLI tool for managing your Immich library via the official Immich API.
 
 ## Features
 
-- 📋 List assets from your Immich library
-- 🗑️ Delete assets matching regex patterns
-- 🔍 Filter and search through your media collection
-- 🛡️ Dry-run mode for safe operations
-- 🎨 Beautiful CLI interface with Rich
+### 📋 Asset Management
+- List assets from your Immich library
+- Delete assets matching regex patterns
+- Filter and search through your media collection
+- Pagination support for large libraries (auto-fetches all assets)
+
+### 📊 Statistics & Analytics
+- **Library Overview** - total assets, size, types breakdown
+- **By File Type** - detailed breakdown of extensions and sizes
+- **By Date** - timeline view grouped by year/month/day
+
+### 🔍 Duplicate Detection
+- Find duplicate asset groups
+- Smart deletion with keep strategies (oldest/newest/largest)
+- Space savings calculation
+
+### 🗑️ Trash Management
+- List trashed assets
+- Restore assets from trash (by pattern or all)
+- Empty trash (permanently delete)
+- Filter by deletion age
+- Trash statistics
+
+### 🛡️ Safety Features
+- Dry-run mode for all destructive operations
+- Confirmation prompts (can be skipped with `--force`)
+- Beautiful CLI interface with Rich tables
+- Comprehensive error handling
 
 ## Installation
 

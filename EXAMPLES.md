@@ -209,3 +209,164 @@ uv run immich-janitor --help
 uv run immich-janitor list-assets --help
 uv run immich-janitor delete-by-pattern --help
 ```
+
+---
+
+## 🆕 NEW FEATURES (v0.2.0)
+
+### Statistics Commands
+
+#### View library overview
+```bash
+uv run immich-janitor stats overview
+```
+
+Shows:
+- Total assets count and size
+- Images vs videos breakdown  
+- Favorites, archived, trashed counts
+- Date range and average uploads per day
+
+#### Breakdown by file type
+```bash
+uv run immich-janitor stats by-type
+```
+
+Lists all file extensions with counts, percentages, and sizes.
+
+#### Timeline view
+```bash
+# Group by month (default)
+uv run immich-janitor stats by-date
+
+# Group by year
+uv run immich-janitor stats by-date --group-by year
+
+# Group by day
+uv run immich-janitor stats by-date --group-by day
+```
+
+---
+
+### Duplicate Management
+
+#### Find duplicates
+```bash
+uv run immich-janitor duplicates find
+```
+
+Shows:
+- Number of duplicate groups
+- Assets in each group
+- Potential space savings
+
+#### Delete duplicates (keep oldest)
+```bash
+# Dry run first!
+uv run immich-janitor duplicates delete --keep oldest --dry-run
+
+# Actually delete
+uv run immich-janitor duplicates delete --keep oldest
+```
+
+#### Delete duplicates (keep newest or largest)
+```bash
+# Keep newest file
+uv run immich-janitor duplicates delete --keep newest
+
+# Keep largest resolution
+uv run immich-janitor duplicates delete --keep largest
+```
+
+---
+
+### Trash Management
+
+#### List trashed assets
+```bash
+# All trashed assets
+uv run immich-janitor trash list
+
+# Only assets deleted more than 30 days ago
+uv run immich-janitor trash list --older-than 30d
+```
+
+#### Restore from trash
+```bash
+# Restore specific pattern
+uv run immich-janitor trash restore --pattern "IMG_2024.*"
+
+# Restore all
+uv run immich-janitor trash restore --all
+
+# Dry run
+uv run immich-janitor trash restore --all --dry-run
+```
+
+#### Empty trash (permanent deletion!)
+```bash
+# Empty trash older than 60 days
+uv run immich-janitor trash empty --older-than 60d
+
+# Empty entire trash (⚠️ DANGEROUS!)
+uv run immich-janitor trash empty --all
+
+# Always test with dry-run first!
+uv run immich-janitor trash empty --all --dry-run
+```
+
+#### Trash statistics
+```bash
+uv run immich-janitor trash stats
+```
+
+---
+
+### Real-World Workflows
+
+#### Monthly cleanup routine
+```bash
+# 1. Check what's in trash
+uv run immich-janitor trash stats
+
+# 2. Empty old trash (60+ days)
+uv run immich-janitor trash empty --older-than 60d
+
+# 3. Find and remove duplicates
+uv run immich-janitor duplicates find
+uv run immich-janitor duplicates delete --keep oldest --dry-run
+uv run immich-janitor duplicates delete --keep oldest
+
+# 4. Check library stats
+uv run immich-janitor stats overview
+```
+
+#### Before/after migration analysis
+```bash
+# Before migration
+uv run immich-janitor stats overview > before.txt
+uv run immich-janitor stats by-type >> before.txt
+
+# After migration  
+uv run immich-janitor stats overview > after.txt
+uv run immich-janitor stats by-type >> after.txt
+
+# Compare files to see what changed
+diff before.txt after.txt
+```
+
+#### Find and clean up test uploads
+```bash
+# Find test files
+uv run immich-janitor list-assets --pattern "test.*"
+
+# Delete them (with confirmation)
+uv run immich-janitor delete-by-pattern "test.*"
+
+# They go to trash - you can restore if needed
+uv run immich-janitor trash list
+
+# Or permanently delete after verifying
+uv run immich-janitor trash empty --all
+```
+
