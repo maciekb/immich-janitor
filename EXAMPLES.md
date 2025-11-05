@@ -225,7 +225,11 @@ Shows:
 - Total assets count and size
 - Images vs videos breakdown  
 - Favorites, archived, trashed counts
-- Date range and average uploads per day
+- Date range (based on EXIF photo taken date when available, or upload date as fallback)
+- Average uploads per day
+
+> **Note**: The date range now uses the actual photo taken date from EXIF metadata when available, 
+> giving you accurate timeline of your photography, not just when files were uploaded to Immich.
 
 #### Breakdown by file type
 ```bash

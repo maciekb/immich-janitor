@@ -12,9 +12,10 @@ CLI tool for managing your Immich library via the official Immich API.
 - Pagination support for large libraries (auto-fetches all assets)
 
 ### 📊 Statistics & Analytics
-- **Library Overview** - total assets, size, types breakdown
+- **Library Overview** - total assets, size, types breakdown, date range
 - **By File Type** - detailed breakdown of extensions and sizes  
 - **By Date** - timeline view grouped by year/month/day
+- **Smart Date Detection** - Uses EXIF photo taken date when available, falls back to upload date
 
 ### 🔍 Duplicate Detection
 - Find duplicate asset groups

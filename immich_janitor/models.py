@@ -1,6 +1,6 @@
 """Data models for Immich API responses."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -40,6 +40,21 @@ class Asset(BaseModel):
         if self.exif_info:
             return self.exif_info.file_size_in_byte
         return None
+
+    @property
+    def photo_taken_at(self) -> datetime:
+        """Get the date when photo was taken (from EXIF) or created date as fallback.
+        
+        Normalizes timezone-naive EXIF timestamps to UTC to ensure compatibility
+        with timezone-aware created_at timestamps for comparison operations.
+        """
+        if self.exif_info and self.exif_info.date_time_original:
+            exif_date = self.exif_info.date_time_original
+            # If EXIF date is naive (no timezone), assume UTC
+            if exif_date.tzinfo is None:
+                return exif_date.replace(tzinfo=timezone.utc)
+            return exif_date
+        return self.created_at
 
 
 class AssetBulkDeleteRequest(BaseModel):
