@@ -6,7 +6,13 @@ from typing import Optional
 import httpx
 from rich.console import Console
 
-from immich_janitor.models import Asset, AssetBulkDeleteRequest
+from immich_janitor.models import (
+    Asset,
+    AssetBulkDeleteRequest,
+    DuplicateGroup,
+    TrashEmptyRequest,
+    TrashRestoreRequest,
+)
 
 console = Console()
 
@@ -148,6 +154,77 @@ class ImmichClient:
         """
         response = self._make_request("GET", f"/assets/{asset_id}")
         return Asset(**response.json())
+
+    # Duplicates management
+    
+    def get_duplicates(self) -> list[DuplicateGroup]:
+        """Get all duplicate asset groups.
+        
+        Returns:
+            List of DuplicateGroup objects
+        """
+        response = self._make_request("GET", "/duplicates")
+        data = response.json()
+        
+        # Parse duplicate groups
+        groups = []
+        for group_data in data:
+            groups.append(DuplicateGroup(**group_data))
+        
+        return groups
+
+    def delete_duplicate_group(self, group_id: str) -> None:
+        """Delete a specific duplicate group.
+        
+        Args:
+            group_id: ID of the duplicate group to delete
+        """
+        self._make_request("DELETE", f"/duplicates/{group_id}")
+
+    # Trash management
+    
+    def get_trash_assets(self) -> list[Asset]:
+        """Get all assets in trash.
+        
+        Returns:
+            List of Asset objects that are trashed
+        """
+        response = self._make_request("GET", "/trash")
+        assets_data = response.json()
+        
+        return [Asset(**asset_data) for asset_data in assets_data]
+
+    def restore_from_trash(self, asset_ids: list[str]) -> None:
+        """Restore assets from trash.
+        
+        Args:
+            asset_ids: List of asset IDs to restore
+        """
+        request_data = TrashRestoreRequest(ids=asset_ids)
+        
+        self._make_request(
+            "POST",
+            "/trash/restore/assets",
+            json=request_data.model_dump(),
+        )
+
+    def empty_trash(self, asset_ids: Optional[list[str]] = None) -> None:
+        """Permanently delete assets from trash.
+        
+        Args:
+            asset_ids: Optional list of specific asset IDs to delete.
+                      If None, empties entire trash.
+        """
+        if asset_ids:
+            request_data = TrashEmptyRequest(ids=asset_ids)
+            self._make_request(
+                "POST",
+                "/trash/empty",
+                json=request_data.model_dump(),
+            )
+        else:
+            # Empty entire trash
+            self._make_request("POST", "/trash/empty")
 
     def close(self):
         """Close the HTTP client."""
