@@ -151,6 +151,61 @@ git commit -m "chore: Bump version to 0.3.0"
 5. **Keep commits clean** - Squash if needed
 6. **Link issues** - Reference related issues
 
+### Using GitHub CLI (gh)
+
+We recommend using `gh` CLI for creating and managing PRs:
+
+```bash
+# Install (macOS)
+brew install gh
+
+# Authenticate
+gh auth login
+
+# Create PR from current branch
+gh pr create --title "feat: Your feature" --body "Description"
+
+# Or interactively
+gh pr create
+
+# Check PR status
+gh pr status
+
+# View PR in browser
+gh pr view --web
+
+# List your PRs
+gh pr list --author @me
+
+# Checkout a PR locally (for review)
+gh pr checkout 123
+
+# Merge PR (after approval)
+gh pr merge 123 --squash
+
+# Close PR without merging
+gh pr close 123
+```
+
+### Useful gh commands for reviews:
+
+```bash
+# View PR diff
+gh pr diff
+
+# Add comment to PR
+gh pr comment --body "LGTM! 🚀"
+
+# Request review
+gh pr edit --add-reviewer username
+
+# Check CI status
+gh pr checks
+
+# View PR comments
+gh pr view
+```
+
 ### Main Branch Protection
 
 The `main` branch should always be:

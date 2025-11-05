@@ -82,14 +82,55 @@ uv run immich-janitor your-new-command
 ### 5. Push and Create PR
 
 ```bash
+# Push your branch
 git push origin feature/your-feature-name
+
+# Create PR using GitHub CLI (recommended)
+gh pr create --title "feat: Add album management" \
+             --body "$(cat <<EOF
+## What
+Adds album management functionality with list, create, and manage commands.
+
+## Why
+Users need to organize their assets into albums via CLI.
+
+## How
+- Added Album model with Pydantic validation
+- Implemented album client methods (list, create, add_assets)
+- Created CLI commands under 'albums' group
+- Added comprehensive tests
+
+## Testing
+- [x] Unit tests added and passing
+- [x] Manual testing performed with real Immich server
+- [x] Documentation updated (README, EXAMPLES)
+
+## Related Issues
+Closes #123
+EOF
+)"
+
+# Or interactively (will prompt for title/body)
+gh pr create
+
+# Or create via GitHub web interface
+# Go to: https://github.com/your-username/immich-janitor
 ```
 
-Then on GitHub:
-1. Create Pull Request
-2. Fill in description (what, why, how)
-3. Link related issues
-4. Request review (if applicable)
+**GitHub CLI installation:**
+```bash
+# macOS
+brew install gh
+
+# Login
+gh auth login
+
+# Check PR status
+gh pr status
+
+# View PR in browser
+gh pr view --web
+```
 
 ### 6. After Merge
 
@@ -176,14 +217,45 @@ git rebase origin/main
 uv run pytest
 uv run immich-janitor albums list
 
-# 5. Push and PR
+# 5. Push and create PR with gh CLI
 git push origin feature/album-management
-# Create PR on GitHub
+gh pr create --title "feat: Add album management" \
+             --body "Implements album list, create, and manage commands" \
+             --label "enhancement"
 
-# 6. After merge
+# 6. Check PR status
+gh pr status
+
+# 7. View in browser if needed
+gh pr view --web
+
+# 8. After merge (can be done via gh too!)
+gh pr merge --squash  # or via GitHub web UI
 git checkout main
 git pull
 git branch -d feature/album-management
+```
+
+## GitHub CLI Workflow Tips
+
+```bash
+# Create draft PR (for WIP)
+gh pr create --draft
+
+# Convert draft to ready
+gh pr ready
+
+# Add reviewers
+gh pr edit --add-reviewer username
+
+# Add labels
+gh pr edit --add-label "bug" --add-label "high-priority"
+
+# Check if PR is ready to merge
+gh pr checks
+
+# Auto-merge after CI passes
+gh pr merge --auto --squash
 ```
 
 ## Questions?
