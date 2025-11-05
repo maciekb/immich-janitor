@@ -7,12 +7,13 @@ CLI tool for managing your Immich library via the official Immich API.
 ### 📋 Asset Management
 - List assets from your Immich library
 - Delete assets matching regex patterns
+- **🎯 Interactive Regex Builder** - Build patterns from example filenames (no regex knowledge required!)
 - Filter and search through your media collection
 - Pagination support for large libraries (auto-fetches all assets)
 
 ### 📊 Statistics & Analytics
 - **Library Overview** - total assets, size, types breakdown
-- **By File Type** - detailed breakdown of extensions and sizes
+- **By File Type** - detailed breakdown of extensions and sizes  
 - **By Date** - timeline view grouped by year/month/day
 
 ### 🔍 Duplicate Detection
@@ -28,6 +29,7 @@ CLI tool for managing your Immich library via the official Immich API.
 - Trash statistics
 
 ### 🛡️ Safety Features
+- **Interactive pattern builder** with live preview and match counts
 - Dry-run mode for all destructive operations
 - Confirmation prompts (can be skipped with `--force`)
 - Beautiful CLI interface with Rich tables
@@ -113,6 +115,59 @@ Delete assets matching a regex pattern:
 
 ```bash
 immich-janitor delete-by-pattern "IMG_[0-9]{4}\.jpg"
+```
+
+#### 🎯 Interactive Regex Builder (New!)
+
+Don't know regex? No problem! Use the interactive mode to build patterns from example filenames:
+
+**Interactive Mode** - Step-by-step pattern builder:
+```bash
+immich-janitor delete-by-pattern --interactive
+```
+
+The tool will:
+1. Ask you for example filenames
+2. Analyze patterns and suggest 3-5 regex options
+3. Show how many files each pattern would match
+4. Let you preview matches before deletion
+5. Confirm before any deletions
+
+**Quick Mode** - Provide examples directly:
+```bash
+immich-janitor delete-by-pattern --examples "IMG_001.jpg,IMG_002.jpg,DSC_1234.jpg"
+```
+
+**Example Session:**
+```
+🔍 Interactive Regex Builder
+
+Analyzed 3 example(s)
+
+                 📋 Suggested Patterns                              
+┏━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ # ┃ Pattern         ┃ Description                   ┃ Matches ┃
+┡━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ 1 │ ^IMG_\d+\.jpg$  │ Files starting with "IMG_",   │   1,234 │
+│   │                 │ followed by numbers, ending   │         │
+│   │                 │ with ".jpg"                   │         │
+│ 2 │ ^(IMG|DSC)_\d+  │ Files starting with IMG or    │   2,456 │
+│   │ \.jpg$          │ DSC, then numbers and ".jpg"  │         │
+│ 3 │ .*\.jpg$        │ All files ending with ".jpg"  │  12,345 │
+└───┴─────────────────┴───────────────────────────────┴─────────┘
+
+Select pattern [1-3] or enter your own regex (q to cancel):
+> 1
+
+Testing pattern: ^IMG_\d+\.jpg$
+Found 1,234 matching files
+
+Sample matches (first 10):
+  ✓ IMG_001.jpg
+  ✓ IMG_002.jpg
+  ...
+
+Use this pattern? [y/N]: y
 ```
 
 Dry-run mode (preview what would be deleted):
