@@ -2,6 +2,29 @@
 
 Thank you for your interest in contributing to Immich Janitor! 🎉
 
+## 🚨 CRITICAL: Before You Start
+
+**MANDATORY PRE-FLIGHT CHECK:**
+
+Before writing ANY code, always check your current branch:
+
+```bash
+# Check current branch
+git branch --show-current
+```
+
+**If you're on `main`:** 
+```bash
+# ⚠️ STOP! Create a feature branch first!
+git checkout -b feature/your-feature-name
+```
+
+**Never commit directly to main for new features/fixes!**
+
+This is our most important workflow rule. See [DEVELOPER_GUIDELINES.md](.github/DEVELOPER_GUIDELINES.md) for full details.
+
+---
+
 ## Development Setup
 
 1. **Install uv** (if not already installed):
