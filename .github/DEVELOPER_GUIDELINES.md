@@ -2,29 +2,60 @@
 
 ## 🚨 CRITICAL: Git Workflow Pre-Flight Checklist
 
-**MANDATORY before starting ANY new feature, fix, or refactoring:**
+**MANDATORY before starting ANY work:**
 
 ### Pre-Work Checklist:
 
-1. **Check current branch**
-   ```bash
-   git branch --show-current
-   ```
+#### 1. Check Current Branch
+```bash
+git branch --show-current
+```
 
-2. **If on `main` or `master`**: **STOP! Create feature branch first**
-   ```bash
-   # DO NOT write code on main!
-   git checkout -b feature/descriptive-name
-   ```
+#### 2. Decision: Do I Need a Feature Branch?
 
-3. **Branch naming conventions**:
-   - `feature/descriptive-name` - New features
-   - `fix/issue-description` - Bug fixes  
-   - `docs/what-changed` - Documentation updates
-   - `refactor/component-name` - Code refactoring
-   - `test/what-testing` - Test additions/updates
+**If on `main`, evaluate your change:**
 
-4. **Only THEN start coding**
+##### ✅ Direct to Main (No Branch) - ONLY These 3 Cases:
+
+1. **Single typo fix**
+   - Changing 1-3 characters in text
+   - Examples: `"teh" → "the"`, `"functino" → "function"`
+   - No testing required
+
+2. **Version bump only**
+   - Only `version` field in `pyproject.toml`
+   - Example: `version = "0.3.0" → "0.3.1"`
+   - No other changes
+
+3. **Critical hotfix**
+   - Production system broken/unusable
+   - Users cannot use the tool
+   - Must be fixed immediately
+
+##### ⚠️ Everything Else → Create Feature Branch:
+
+```bash
+git checkout -b feature/descriptive-name
+# or: fix/*, docs/*, refactor/*, test/*
+```
+
+**This includes:**
+- Any code changes (even "small")
+- Documentation updates (even one paragraph)
+- Bug fixes requiring investigation
+- New features or commands
+- Refactoring
+- Multiple file changes
+- **If uncertain: CREATE BRANCH**
+
+#### 3. Branch Naming Conventions:
+- `feature/descriptive-name` - New features
+- `fix/issue-description` - Bug fixes
+- `docs/what-changed` - Documentation updates
+- `refactor/component-name` - Code refactoring
+- `test/what-testing` - Test additions/updates
+
+#### 4. Only THEN Start Coding
 
 ### Why This Matters:
 
@@ -34,20 +65,28 @@
 - ✅ Makes it easy to abandon/restart work
 - ✅ Creates clear history of changes
 
-### ⚠️ If You Already Started on Main:
+### ⚠️ If You Started on Main by Mistake
+
+**Realized mid-work that this should be on a feature branch?**
 
 ```bash
+# STOP before committing
+
 # Save your work
 git stash
 
 # Create proper branch
-git checkout -b feature/your-feature-name
+git checkout -b feature/what-you-were-doing
 
 # Restore your work
 git stash pop
 
 # Continue as normal
 ```
+
+**Better to fix this now than commit to main and have to revert later.**
+
+**Note:** This is for changes that should have been on a branch. For legitimate direct-to-main commits (typos, version bumps), just commit normally.
 
 ---
 

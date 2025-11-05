@@ -13,15 +13,47 @@ Before writing ANY code, always check your current branch:
 git branch --show-current
 ```
 
-**If you're on `main`:** 
+### Decision: Do I Need a Feature Branch?
+
+**If you're on `main`, ask yourself:**
+
+#### Can I Commit Directly to Main?
+
+**YES - ONLY for these specific cases:**
+
+1. **Obvious typo fix**
+   - Changing 1-3 characters in text
+   - Examples: "teh" → "the", "functino" → "function"
+   - Does NOT require testing
+
+2. **Version number update**
+   - Only changing version in `pyproject.toml`
+   - Example: `version = "0.3.0" → "0.3.1"`
+   - Nothing else changed
+
+3. **Critical hotfix**
+   - Production system is broken
+   - Users cannot use the tool
+   - Requires immediate fix
+
+**NO - Create a feature branch for:**
+
+- Any code changes (even if "small")
+- Documentation updates (even one paragraph)
+- Bug fixes
+- New features
+- Refactoring
+- Multiple file changes
+- **Anything you're uncertain about**
+
 ```bash
-# ⚠️ STOP! Create a feature branch first!
+# If answer is NO, create branch:
 git checkout -b feature/your-feature-name
 ```
 
-**Never commit directly to main for new features/fixes!**
+**Rule of thumb:** If you're asking yourself "should this be a branch?", the answer is **YES, create a branch**.
 
-This is our most important workflow rule. See [DEVELOPER_GUIDELINES.md](.github/DEVELOPER_GUIDELINES.md) for full details.
+See [DEVELOPER_GUIDELINES.md](.github/DEVELOPER_GUIDELINES.md) for complete workflow.
 
 ---
 

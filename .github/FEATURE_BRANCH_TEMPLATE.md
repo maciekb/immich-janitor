@@ -156,20 +156,37 @@ Before creating PR, ensure:
 
 ## When NOT to Use Feature Branch
 
-Direct commits to main are OK for:
+**Direct commits to main are acceptable ONLY for:**
 
-- Typo fixes
-- Small doc updates
-- Version bumps
-- Hotfixes (but create issue first)
-- Dependency updates
+1. **Obvious typo fixes**
+   - Changing 1-3 characters only
+   - Examples: `"teh" → "the"`, `"functino" → "function"`
+   - In docs, comments, or strings
 
-**Example:**
+2. **Version number updates**
+   - Only the version field in `pyproject.toml`
+   - Example: `version = "0.3.0" → "0.3.1"`
+   - Nothing else changed
+
+3. **Critical hotfixes**
+   - Production system is broken/unusable
+   - Users cannot use the tool
+   - Requires immediate fix
+
+**Example of acceptable direct commit:**
 ```bash
 git checkout main
-git commit -m "docs: Fix typo in README"
+git commit -m "docs: Fix typo in README (teh → the)"
 git push origin main
 ```
+
+**Everything else needs a feature branch**, including:
+- Documentation updates (paragraphs, sections)
+- Dependency updates
+- Any code changes
+- Non-critical bug fixes
+
+**Rule of thumb:** When in doubt, create a branch. See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed decision criteria.
 
 ## PR Description Template
 
