@@ -9,6 +9,7 @@ from immich_janitor.cli_stats import stats
 from immich_janitor.cli_trash import trash
 from immich_janitor.client import ImmichClient
 from immich_janitor.config import load_config
+from immich_janitor.regex_helper import interactive_regex_builder
 
 # Load .env file at module import
 load_config()
@@ -89,7 +90,17 @@ def list_assets(ctx, limit: int, pattern: str | None):
 
 
 @cli.command()
-@click.argument("pattern")
+@click.argument("pattern", required=False)
+@click.option(
+    "--interactive",
+    "-i",
+    is_flag=True,
+    help="Interactive mode: build regex from examples",
+)
+@click.option(
+    "--examples",
+    help="Example filenames (comma-separated) for pattern detection",
+)
 @click.option(
     "--dry-run",
     is_flag=True,
@@ -101,11 +112,56 @@ def list_assets(ctx, limit: int, pattern: str | None):
     help="Skip confirmation prompt",
 )
 @click.pass_context
-def delete_by_pattern(ctx, pattern: str, dry_run: bool, force: bool):
-    """Delete assets matching a regex pattern."""
+def delete_by_pattern(ctx, pattern: str | None, interactive: bool, examples: str | None, dry_run: bool, force: bool):
+    """Delete assets matching a regex pattern.
+    
+    You can provide a pattern directly, or use --interactive or --examples
+    to build a pattern from example filenames.
+    
+    Examples:
+    
+        # Direct pattern
+        immich-janitor delete-by-pattern "^IMG_\\d+\\.jpg$"
+        
+        # Interactive mode
+        immich-janitor delete-by-pattern --interactive
+        
+        # Quick mode with examples
+        immich-janitor delete-by-pattern --examples "IMG_001.jpg,IMG_002.jpg"
+    """
     client: ImmichClient = ctx.obj["client"]
     
     try:
+        # Handle interactive/examples mode
+        if interactive or examples:
+            if pattern:
+                console.print("[yellow]Warning: Pattern argument ignored in interactive mode.[/yellow]")
+            
+            # Fetch all assets for testing patterns
+            with console.status("[bold green]Fetching assets for pattern matching..."):
+                all_assets = client.get_all_assets()
+            
+            if not all_assets:
+                console.print("[yellow]No assets found in library.[/yellow]")
+                return
+            
+            # Parse examples if provided
+            example_list = None
+            if examples:
+                example_list = [e.strip() for e in examples.split(',') if e.strip()]
+            
+            # Run interactive builder
+            pattern = interactive_regex_builder(examples=example_list, all_assets=all_assets)
+            
+            if not pattern:
+                console.print("[yellow]Pattern selection cancelled.[/yellow]")
+                return
+        
+        elif not pattern:
+            console.print("[red]Error: Pattern required. Use --interactive or provide a pattern.[/red]")
+            console.print("Try: immich-janitor delete-by-pattern --help")
+            raise click.Abort()
+        
         # First, list matching assets
         with console.status("[bold green]Finding matching assets..."):
             assets = client.get_all_assets(pattern=pattern)
@@ -117,12 +173,14 @@ def delete_by_pattern(ctx, pattern: str, dry_run: bool, force: bool):
         # Show what will be deleted
         console.print(f"\n[yellow]Found {len(assets)} asset(s) matching pattern '{pattern}':[/yellow]\n")
         
-        table = Table()
+        # Show sample of matches
+        sample_size = min(20, len(assets))
+        table = Table(title=f"Sample Matches (showing {sample_size} of {len(assets)})")
         table.add_column("ID", style="cyan")
         table.add_column("Filename", style="magenta")
         table.add_column("Type", style="green")
         
-        for asset in assets:
+        for asset in assets[:sample_size]:
             table.add_row(
                 asset.id[:8] + "...",
                 asset.original_file_name,
@@ -130,6 +188,9 @@ def delete_by_pattern(ctx, pattern: str, dry_run: bool, force: bool):
             )
         
         console.print(table)
+        
+        if len(assets) > sample_size:
+            console.print(f"\n[dim]... and {len(assets) - sample_size} more[/dim]")
         
         if dry_run:
             console.print("\n[blue]Dry run - no assets were deleted.[/blue]")
