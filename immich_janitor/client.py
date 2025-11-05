@@ -70,12 +70,14 @@ class ImmichClient:
         self,
         limit: Optional[int] = None,
         pattern: Optional[str] = None,
+        with_exif: bool = True,
     ) -> list[Asset]:
         """Get all assets from Immich library.
         
         Args:
             limit: Maximum number of assets to return
             pattern: Regex pattern to filter assets by filename
+            with_exif: Include EXIF data (file size, dimensions, etc.)
             
         Returns:
             List of Asset objects
@@ -86,6 +88,7 @@ class ImmichClient:
         
         while True:
             # Use search/metadata endpoint with pagination
+            # withExif includes file size and other metadata
             response = self._make_request(
                 "POST",
                 "/search/metadata",
@@ -93,6 +96,7 @@ class ImmichClient:
                     "query": "",
                     "page": page,
                     "size": page_size,
+                    "withExif": with_exif,
                 },
             )
             
@@ -100,18 +104,24 @@ class ImmichClient:
             assets_data = data.get("assets", {}).get("items", [])
             
             if not assets_data:
+                # No more assets to fetch
                 break
             
             # Parse assets
             assets = [Asset(**asset_data) for asset_data in assets_data]
             all_assets.extend(assets)
             
-            # Check if we got all assets or reached the limit
-            total = data.get("assets", {}).get("total", 0)
-            if len(all_assets) >= total or len(assets_data) < page_size:
+            # Continue pagination if we got a full page
+            # (indicates there might be more assets)
+            if len(assets_data) < page_size:
+                # Got less than a full page, we're done
                 break
             
             page += 1
+            
+            # Show progress for large libraries
+            if page % 10 == 0:
+                console.print(f"[dim]Fetched {len(all_assets)} assets so far...[/dim]")
         
         # Filter by pattern if provided
         if pattern:

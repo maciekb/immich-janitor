@@ -1,9 +1,22 @@
 """Data models for Immich API responses."""
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+class ExifInfo(BaseModel):
+    """EXIF information for an asset."""
+
+    model_config = ConfigDict(populate_by_name=True, extra="allow")
+
+    file_size_in_byte: Optional[int] = Field(None, alias="fileSizeInByte")
+    exif_image_width: Optional[int] = Field(None, alias="exifImageWidth")
+    exif_image_height: Optional[int] = Field(None, alias="exifImageHeight")
+    make: Optional[str] = None
+    model: Optional[str] = None
+    date_time_original: Optional[datetime] = Field(None, alias="dateTimeOriginal")
 
 
 class Asset(BaseModel):
@@ -15,11 +28,18 @@ class Asset(BaseModel):
     original_file_name: str = Field(alias="originalFileName")
     type: str  # 'IMAGE' or 'VIDEO'
     created_at: datetime = Field(alias="createdAt")
-    file_size_in_bytes: Optional[int] = Field(None, alias="fileSizeInBytes")
+    exif_info: Optional[ExifInfo] = Field(None, alias="exifInfo")
     is_favorite: bool = Field(False, alias="isFavorite")
     is_archived: bool = Field(False, alias="isArchived")
     is_trashed: bool = Field(False, alias="isTrashed")
     deleted_at: Optional[datetime] = Field(None, alias="deletedAt")
+
+    @property
+    def file_size_in_bytes(self) -> Optional[int]:
+        """Get file size from exifInfo if available."""
+        if self.exif_info:
+            return self.exif_info.file_size_in_byte
+        return None
 
 
 class AssetBulkDeleteRequest(BaseModel):
