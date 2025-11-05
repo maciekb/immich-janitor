@@ -47,6 +47,9 @@ uv.lock
 htmlcov/
 *.cover
 
+# Goose AI
+.goose/
+
 # OS
 .DS_Store
 Thumbs.db
