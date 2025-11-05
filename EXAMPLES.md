@@ -18,7 +18,12 @@ uv run immich-janitor list-assets --limit 5
 
 # Pokaż 1000 assetów
 uv run immich-janitor list-assets --limit 1000
+
+# Bez limitu - pokaż wszystkie (może być wolne dla dużych bibliotek)
+uv run immich-janitor list-assets --limit 999999
 ```
+
+> **Uwaga**: Aplikacja automatycznie pobiera wszystkie assety używając paginacji (1000 assetów na stronę). Bez `--limit` domyślnie pokazuje pierwszych 100.
 
 ## Filtrowanie po wzorcu
 
