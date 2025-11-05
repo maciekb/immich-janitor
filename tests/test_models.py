@@ -1,6 +1,6 @@
 """Tests for data models."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -239,3 +239,40 @@ def test_asset_photo_taken_at_with_exif_but_no_date():
     # Should fallback to createdAt when EXIF exists but has no date
     assert asset.photo_taken_at == asset.created_at
     assert asset.photo_taken_at.strftime("%Y-%m-%d") == "2024-01-10"
+
+
+def test_asset_photo_taken_at_naive_exif_normalized():
+    """Test photo_taken_at normalizes timezone-naive EXIF dates to UTC.
+    
+    This regression test ensures we don't get TypeError when comparing
+    naive EXIF dates with timezone-aware created_at timestamps.
+    """
+    # Create asset with timezone-naive EXIF date (common in EXIF metadata)
+    naive_exif_date = datetime(2024, 1, 5, 10, 30, 0)  # No timezone
+    
+    asset_data = {
+        "id": "test-naive-exif",
+        "originalFileName": "IMG_004.jpg",
+        "type": "IMAGE",
+        "createdAt": "2024-01-10T12:00:00Z",  # Timezone-aware (UTC)
+        "exifInfo": {
+            "fileSizeInByte": 5000000,
+            "dateTimeOriginal": naive_exif_date,
+        },
+        "isFavorite": False,
+        "isArchived": False,
+        "isTrashed": False,
+    }
+    
+    asset = Asset(**asset_data)
+    
+    # photo_taken_at should be timezone-aware after normalization
+    assert asset.photo_taken_at.tzinfo is not None
+    assert asset.photo_taken_at.tzinfo == timezone.utc
+    
+    # Should be comparable with created_at without TypeError
+    # This would fail before normalization fix
+    assert asset.photo_taken_at < asset.created_at  # Photo taken before upload
+    
+    # Date should be preserved, only timezone added
+    assert asset.photo_taken_at.strftime("%Y-%m-%d %H:%M:%S") == "2024-01-05 10:30:00"
